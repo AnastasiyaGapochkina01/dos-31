@@ -1,0 +1,1 @@
+1) Postgres репликация: https://youtu.be/9qN8kskjwvo
