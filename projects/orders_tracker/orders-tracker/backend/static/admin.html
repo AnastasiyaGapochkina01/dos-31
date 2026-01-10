@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Orders</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h2, h3 {
+            color: #333;
+        }
+
+        button {
+            background-color: #4676D7;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 16px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #3355aa;
+        }
+
+        #orders {
+            margin-top: 20px;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        a.link-button {
+            display: inline-block;
+            text-decoration: none;
+            background-color: #4676D7;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        a.link-button:hover {
+            background-color: #3355aa;
+        }
+    </style>
+</head>
+<body>
+    <h2>Order List</h2>
+    <div id="orders"></div>
+
+    <h3>Добавить заказ</h3>
+    <form id="addOrderForm">
+        Название товара: <input type="text" id="orderName" required>
+        <button type="submit">Добавить</button>
+    </form>
+
+    <a href="/order/status/view" class="link-button">Посмотреть все заказы</a>
+
+    <script>
+        function loadOrders() {
+            fetch('/orders')
+                .then(response => response.json())
+                .then(orders => {
+                    document.getElementById('orders').innerHTML = orders.map(order => `
+                        <div>
+                            <b>${order.name}</b> [${order.status}]
+                            <form action="/order/status" method="POST" style="display:inline;">
+                                <input type="hidden" name="order_id" value="${order.id}">
+                                <select name="status">
+                                    <option value="created">created</option>
+                                    <option value="processing">processing</option>
+                                    <option value="shipped">shipped</option>
+                                    <option value="delivered">delivered</option>
+                                </select>
+                                <button type="submit">Update</button>
+                            </form>
+                        </div>`).join('');
+                });
+        }
+
+        loadOrders();
+
+        document.getElementById('addOrderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('orderName').value;
+            fetch('/orders', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({id: Date.now().toString(), name: name, status: "created"})
+            }).then(response => {
+                if (response.ok) {
+                    loadOrders();
+                    this.reset();
+                } else {
+                    alert("Ошибка добавления заказа");
+                }
+            });
+        });
+    </script>
+
+    <a href="/logout" class="link-button">Logout</a>
+</body>
+</html>

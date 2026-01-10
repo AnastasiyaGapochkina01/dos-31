@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Docker Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .refresh-btn {
+            background-color: #28a745;
+            padding: 8px 16px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .refresh-btn:hover {
+            background-color: #218838;
+        }
+        
+        .report-btn {
+            background-color: #17a2b8;
+            padding: 8px 16px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .report-btn:hover {
+            background-color: #138496;
+        }
+        
+        .container-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .container-card {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .container-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .container-name {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+            text-decoration: none;
+        }
+        
+        .container-name:hover {
+            text-decoration: underline;
+        }
+        
+        .container-status {
+            display: flex;
+            align-items: center;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-running {
+            background-color: #28a745;
+        }
+        
+        .status-exited {
+            background-color: #dc3545;
+        }
+        
+        .status-paused {
+            background-color: #6c757d;
+        }
+        
+        .status-created {
+            background-color: #ffc107;
+        }
+        
+        .container-details {
+            margin-top: 10px;
+        }
+        
+        .detail-row {
+            display: flex;
+            margin-bottom: 5px;
+        }
+        
+        .detail-label {
+            font-weight: bold;
+            width: 80px;
+            color: #666;
+        }
+        
+        .detail-value {
+            flex: 1;
+            word-break: break-all;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="nav-brand">Docker Dashboard</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>Docker Containers</h1>
+            <div>
+                <button class="refresh-btn" onclick="refreshContainers()">Refresh</button>
+                <button class="report-btn" onclick="generateReport()">Generate Report</button>
+            </div>
+        </div>
+
+        {{if .error}}
+        <div class="error-message">
+            {{.error}}
+        </div>
+        {{end}}
+
+        <div id="containers-list">
+            <div class="loading">Loading containers...</div>
+        </div>
+    </div>
+
+    <script>
+        // Function to fetch containers from the server
+        function fetchContainers() {
+            fetch('/dashboard/data')
+                .then(response => response.json())
+                .then(data => {
+                    renderContainers(data.containers);
+                })
+                .catch(error => {
+                    console.error('Error fetching containers:', error);
+                    document.getElementById('containers-list').innerHTML = 
+                        '<div class="error-message">Failed to load containers. Please try again.</div>';
+                });
+        }
+
+        // Function to render containers in the UI
+        function renderContainers(containers) {
+            const containersList = document.getElementById('containers-list');
+            
+            if (!containers || containers.length === 0) {
+                containersList.innerHTML = '<div class="loading">No containers found.</div>';
+                return;
+            }
+            
+            let html = '<div class="container-grid">';
+            
+            containers.forEach(container => {
+                const statusClass = getStatusClass(container.State);
+                const statusText = getStatusText(container.State);
+                
+                html += `
+                    <div class="container-card">
+                        <div class="container-header">
+                            <a href="/container/${container.Id}" class="container-name">${container.Names[0].replace('/', '')}</a>
+                            <div class="container-status">
+                                <span class="status-dot ${statusClass}"></span>
+                                <span>${statusText}</span>
+                            </div>
+                        </div>
+                        <div class="container-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Image:</span>
+                                <span class="detail-value">${container.Image}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">ID:</span>
+                                <span class="detail-value">${container.Id.substring(0, 12)}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Created:</span>
+                                <span class="detail-value">${formatDate(container.Created)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            containersList.innerHTML = html;
+        }
+
+        // Helper function to get CSS class for status
+        function getStatusClass(state) {
+            switch(state) {
+                case 'running': return 'status-running';
+                case 'exited': return 'status-exited';
+                case 'paused': return 'status-paused';
+                case 'created': return 'status-created';
+                default: return 'status-exited';
+            }
+        }
+
+        // Helper function to get text for status
+        function getStatusText(state) {
+            return state.charAt(0).toUpperCase() + state.slice(1);
+        }
+
+        // Helper function to format date
+        function formatDate(timestamp) {
+            return new Date(timestamp * 1000).toLocaleString();
+        }
+
+        // Function to refresh containers
+        function refreshContainers() {
+            document.getElementById('containers-list').innerHTML = '<div class="loading">Refreshing containers...</div>';
+            fetchContainers();
+        }
+
+        // Function to generate report
+        function generateReport() {
+            fetch('/report', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Report generation started. It will be sent to your Telegram account.');
+            })
+            .catch(error => {
+                console.error('Error generating report:', error);
+                alert('Failed to generate report. Please try again.');
+            });
+        }
+
+        // Load containers when page loads
+        document.addEventListener('DOMContentLoaded', fetchContainers);
+    </script>
+</body>
+</html>

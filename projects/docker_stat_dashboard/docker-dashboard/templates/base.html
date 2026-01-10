@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Docker Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav>
+        <a href="/">Home</a>
+        {{if .Authenticated}}
+            <a href="/dashboard">Dashboard</a>
+            <a href="/logout">Logout</a>
+        {{else}}
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+        {{end}}
+    </nav>
+    <div class="content">
+        {{block "content" .}}{{end}}
+    </div>
+</body>
+</html>

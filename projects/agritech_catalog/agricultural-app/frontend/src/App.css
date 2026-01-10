@@ -1,0 +1,87 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 20px;
+  background: #f9f9f9;
+  color: #333;
+}
+
+h1, h2 {
+  color: #2e7d32;
+  margin-bottom: 15px;
+}
+
+nav a {
+  color: #2e7d32;
+  text-decoration: none;
+  font-weight: 600;
+  margin-right: 15px;
+  font-size: 18px;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+input[type="text"], input[type="number"], textarea {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+button {
+  background-color: #2e7d32;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #1b4d20;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  background: white;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+th {
+  background-color: #a5d6a7;
+  color: #1b4d20;
+  font-weight: 700;
+  user-select: none;
+}
+
+tr:hover {
+  background-color: #e8f5e9;
+}
+
+form > div {
+  margin-top: 10px;
+}
+
+@media (min-width: 600px) {
+  form {
+    max-width: 600px;
+  }
+}
