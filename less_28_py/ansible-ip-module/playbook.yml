@@ -1,0 +1,46 @@
+---
+- name: Get Public IP Address from Various Services
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Get public IP from default service (ipify)
+      get_pubip:
+      register: ipify_result
+
+    - name: Display IP from ipify
+      debug:
+        msg: "Public IP from ipify: {{ ansible_facts.pub_ip.public_ip }}"
+
+    - name: Get public IP from 2ip.ru
+      get_pubip:
+        api_service: 2ip
+      register: twip_result
+
+    - name: Display IP from 2ip.ru
+      debug:
+        msg: "Public IP from 2ip.ru: {{ ansible_facts.pub_ip.public_ip }}"
+
+    - name: Get public IP from ip.me
+      get_pubip:
+        api_service: ipme
+      register: ipme_result
+
+    - name: Display IP from ip.me
+      debug:
+        msg: "Public IP from ip.me: {{ ansible_facts.pub_ip.public_ip }}"
+
+    - name: Compare results from all services
+      debug:
+        msg: |
+          IP from different services:
+          - ipify: {{ ipify_result.ansible_facts.pub_ip.public_ip }}
+          - 2ip.ru: {{ twip_result.ansible_facts.pub_ip.public_ip }}
+          - ip.me: {{ ipme_result.ansible_facts.pub_ip.public_ip }}
+
+    - name: Save IP to variable for later use
+      set_fact:
+        public_ip: "{{ ansible_facts.pub_ip.public_ip }}"
+
+    - name: Use the IP in another task
+      debug:
+        msg: "The public IP is {{ public_ip }}"
