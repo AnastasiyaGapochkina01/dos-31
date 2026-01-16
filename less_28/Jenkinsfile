@@ -44,6 +44,15 @@ pipeline {
             }
         }
 
+        stage('Run tests') {
+            when {
+                expression { params.RUN_TESTS == true }
+            }
+            steps {
+                pytest ${env.BASE_DIR} 
+            }
+        }
+
         stage('Build docker image') {
             steps {
                 script {
