@@ -16,7 +16,7 @@ pipeline {
     environment {
         REPO = 'anestesia01/counter'
         DOCKER_TOKEN = credentials('docker-token')
-        HOST = '18.220.255.27'
+        HOST = '18.217.86.128'
         GIT_URL = 'git@github.com:AnastasiyaGapochkina01/dos-31.git'
         BASE_DIR = 'less_28'
         PRJ_DIR = '/var/www/counter'
