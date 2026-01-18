@@ -14,7 +14,7 @@ services:
       - db_data:/var/lib/postgresql/data
 
   counter:
-    image: counter:tests
+    image: anestesia01/counter
     environment:
       DATABASE_URL: "postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}/${DB_NAME}"
       COUNTER_PORT: ${COUNTER_PORT}
