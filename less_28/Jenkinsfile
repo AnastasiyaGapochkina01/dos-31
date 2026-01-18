@@ -76,7 +76,7 @@ pipeline {
                         docker pull ${env.REPO}:${params.IMAGE_TAG}
                         cd ${env.PRJ_DIR}
                         export APP_IMAGE=${env.REPO}:${params.IMAGE_TAG}
-                        envsubst < compose.tmpl > compose.yaml
+                        sed -i "s|image: anestesia01.*|image: ${APP_IMAGE}|" compose.yaml
                         docker compose up -d
                     """
                 }
