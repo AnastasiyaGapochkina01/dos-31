@@ -48,7 +48,7 @@ pipeline {
         stage('Build docker image') {
             steps {
                 script {
-                    env.IMAGE = ${env.REPO}:${params.IMAGE_TAG}
+                    env.IMAGE = "${env.REPO}:${params.IMAGE_TAG}"
                     sh """
                         docker build -t ${env.IMAGE} ${env.BASE_DIR}
                     """
