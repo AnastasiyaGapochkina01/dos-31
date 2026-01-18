@@ -48,8 +48,9 @@ pipeline {
         stage('Build docker image') {
             steps {
                 script {
+                    env.IMAGE = ${env.REPO}:${params.IMAGE_TAG}
                     sh """
-                        docker build -t ${env.REPO}:${params.IMAGE_TAG} ${env.BASE_DIR}
+                        docker build -t ${env.IMAGE} ${env.BASE_DIR}
                     """
                 }
             }
@@ -62,7 +63,7 @@ pipeline {
                 script {
                     sh """
                         docker login -u ${env.DOCKER_USER} -p ${env.DOCKER_TOKEN} 
-                        docker push ${env.REPO}:${params.IMAGE_TAG}
+                        docker push ${env.IMAGE}
                         docker logout
                     """
                 }
@@ -73,10 +74,9 @@ pipeline {
             steps {
                 script {
                     sshCommand remote: remote, command: """
-                        docker pull ${env.REPO}:${params.IMAGE_TAG}
+                        docker pull ${env.IMAGE}
                         cd ${env.PRJ_DIR}
-                        export APP_IMAGE=${env.REPO}:${params.IMAGE_TAG}
-                        sed -i "s|image: anestesia01.*|image: ${APP_IMAGE}|" compose.yaml
+                        sed -i "s|image: anestesia01.*|image: ${env.IMAGE}|" compose.yaml
                         docker compose up -d
                     """
                 }
