@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Заметки и напоминания</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <h1>Заметки и напоминания</h1>
+
+    <form id="note-form">
+      <input type="text" id="title" placeholder="Заголовок" required />
+      <textarea id="content" placeholder="Текст заметки"></textarea>
+      <input type="datetime-local" id="reminder" />
+      <button type="submit">Добавить</button>
+    </form>
+
+    <div id="notes"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+

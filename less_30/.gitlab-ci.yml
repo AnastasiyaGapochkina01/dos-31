@@ -1,0 +1,107 @@
+workflow:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: always
+    - when: never
+
+stages:
+  - format
+  - linting
+  - build
+  - deploy
+#  - notify
+
+variables:
+  DOCKER_USER: anestesia01
+  REPO: anestesia01/dos-31
+  IMAGE_TAG: backend-$CI_COMMIT_SHORT_SHA
+  REGISTRY: https://index.docker.io/v1/
+  PRJ_DIR: /home/gitlab-runner
+  HOST: 158.160.84.120
+  SSH_USER: gitlab-runner
+
+format-code:
+  stage: format
+  image: golang:1.24-alpine
+  before_script:
+    - go mod init blog
+    - go mod tidy
+  script:
+    - go fmt ./backend
+    - go vet ./backend
+  tags:
+    - dos-31-runner
+  rules:
+    - changes:
+      - backend/*.go
+
+lint-code:
+  stage: linting
+  image: golangci/golangci-lint
+  script:
+    - golangci-lint run -v
+  allow_failure: true
+  tags:
+    - dos-31-runner
+  rules:
+    - changes:
+      - backend/*.go
+
+build-image-dind:
+  stage: build
+  services:
+    - name: docker:dind
+      alias: docker
+  image: docker:29.1.5
+  before_script:
+    - docker login -u ${DOCKER_USER} -p ${DOCKER_TOKEN}
+  script:
+    - docker build -t ${REPO}:${IMAGE_TAG}-dind ./backend
+    - docker push ${REPO}:${IMAGE_TAG}-dind
+  after_script:
+    - docker logout
+  tags:
+    - dos-31-runner
+  rules:
+    - when: never
+
+build-image-kaniko:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$REGISTRY\":{\"username\":\"$DOCKER_USER\",\"password\":\"$DOCKER_TOKEN\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor
+      --context "${CI_PROJECT_DIR}/backend"
+      --dockerfile "${CI_PROJECT_DIR}/backend/Dockerfile"
+      --destination "${REPO}:${IMAGE_TAG}"
+  tags:
+    - dos-31-runner
+#  rules:
+#    - if: '$CI_COMMIT_MESSAGE =~ /.*build/'
+#    - changes:
+#        - backend/*
+
+deploy-job:
+  stage: deploy
+  image: alpine
+  needs: ["build-image-kaniko"]
+  variables:
+    SSH_OPTS: -i id_ed25519 -o StrictHostKeyChecking=no
+  before_script:
+    - apk update && apk add --no-cache openssh
+    - cat $SSH_KEY > id_ed25519
+    - chmod 600 id_ed25519
+  script:
+    - scp ${SSH_OPTS} compose.yaml ${SSH_USER}@${HOST}:${PRJ_DIR}
+    - scp ${SSH_OPTS} set_env.py ${SSH_USER}@${HOST}:${PRJ_DIR}
+    - ssh ${SSH_OPTS} ${SSH_USER}@${HOST} "
+        cd ${PRJ_DIR} ;
+        python3 set_env.py ${REPO}:${IMAGE_TAG} ;
+        docker compose up -d "
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: always
+    - when: manual
