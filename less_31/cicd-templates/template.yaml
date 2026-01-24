@@ -1,0 +1,11 @@
+.common_tags:
+  tags:
+    - dos-31-runner
+
+.ssh_base:
+  variables:
+    SSH_OPTS: -i id_ed25519 -o StrictHostKeyChecking=no
+  before_script:
+    - apk update && apk add --no-cache openssh
+    - cat $SSH_KEY > id_ed25519
+    - chmod 600 id_ed25519

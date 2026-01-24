@@ -1,0 +1,46 @@
+include:
+  - project: anestesia_01/cicd-templates
+    ref: main
+    file:
+      - 'build.yaml'
+      - 'scan.yaml'
+
+stages:
+  - test
+  - build
+  - scan
+  - deploy
+
+variables:
+  DOCKER_USER: anestesia01
+  REPO: ${DOCKER_USER}/dos-31
+  IMAGE_TAG_STAGE: ${REPO}:itprofs-$CI_COMMIT_SHORT_SHA
+  IMAGE_TAG_PROD: ${REPO}:itprofs-latest
+  PRJ_NAME: it-profs
+  SSH_USER: gitlab-runner
+  REGISTRY: https://index.docker.io/v1/
+  
+test:job:
+  stage: test
+  image: python:3.12-slim
+  before_script:
+    - pip install bandit
+  script:
+    - bandit main.py
+  allow_failure: true
+
+trigger-app:job:
+  trigger:
+    include: deploy-app.yaml
+  variables:
+    ENV: stage
+    IMAGE_TAG: $IMAGE_TAG_STAGE
+  stage: deploy
+
+trigger-target:job:
+  trigger:
+    include: deploy-target.yaml
+  variables:
+    ENV: prod
+    IMAGE_TAG: $IMAGE_TAG_PROD
+  stage: deploy

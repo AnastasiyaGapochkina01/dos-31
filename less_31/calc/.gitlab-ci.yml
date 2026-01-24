@@ -1,0 +1,14 @@
+stages:
+  - tests
+
+test:job:
+  stage: tests
+  image: python:${PY_VERSION}
+  before_script:
+    - pip install pytest
+  script:
+    - pytest -s -v
+  parallel:
+    matrix:
+      - PY_VERSION: ["3.10", "3.11", "3.12"]
+  allow_failure: true

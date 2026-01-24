@@ -1,0 +1,21 @@
+include:
+  - local: 'template.yaml'
+
+scan:job:
+  stage: scan
+  image:
+    name: docker.io/aquasec/trivy:latest
+    entrypoint: [""]
+  tags:
+    !reference [.common_tags, tags]
+  variables:
+    TRIVY_USERNAME: $DOCKER_USER
+    TRIVY_PASSWORD: $DOCKER_TOKEN
+  script:
+    - trivy image --output "$CI_PROJECT_DIR/gl-container-scanning-report.json" ${IMAGE_TAG}
+  parallel:
+    matrix:
+      - IMAGE_TAG: ["${IMAGE_TAG_STAGE}", "${IMAGE_TAG_PROD}"]
+  artifacts:
+    reports:
+      container_scanning: gl-container-scanning-report.json

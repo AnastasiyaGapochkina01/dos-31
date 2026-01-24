@@ -1,0 +1,17 @@
+include:
+  - local: 'template.yaml'
+
+build:job:
+  stage: build
+  tags:
+    !reference [.common_tags, tags]
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$REGISTRY\":{\"username\":\"$DOCKER_USER\",\"password\":\"$DOCKER_TOKEN\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor
+      --context "${CI_PROJECT_DIR}/"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+      --destination "${IMAGE_TAG_STAGE}" --destination "${IMAGE_TAG_PROD}"

@@ -1,0 +1,8 @@
+include:
+  - project: anestesia_01/cicd-templates
+    ref: main
+    file:
+      - 'deploy.yaml'
+
+variables:
+  HOST: 89.169.172.135

@@ -1,0 +1,14 @@
+include:
+  - local: 'template.yaml'
+
+deploy:job:
+  stage: deploy
+  image: alpine
+  tags:
+    !reference [.common_tags, tags]
+  variables:
+    !reference [.ssh_base, variables]
+  before_script:
+    !reference [.ssh_base, before_script]
+  script: |
+    ssh ${SSH_OPTS} ${SSH_USER}@${HOST} "docker pull ${IMAGE_TAG} ; docker rm -f $PRJ_NAME || true ; docker run -d -it --name $PRJ_NAME -p 8000:8000 ${IMAGE_TAG}"
