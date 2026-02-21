@@ -1,0 +1,28 @@
+---
+# tasks file for setup-nginx
+- name: Install nginx
+  apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- name: Remove default vhost
+  file:
+    path: "{{ nginx_default_path }}"
+    state: absent
+  notify: restart nginx
+
+- name: Copy actual vhost config
+  template:
+    src: vhost.j2
+    dest: "{{ nginx_conf_file_link }}"
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart nginx
+
+- name: Ensure nginx is running
+  service:
+    name: nginx
+    state: restarted
+    enabled: true

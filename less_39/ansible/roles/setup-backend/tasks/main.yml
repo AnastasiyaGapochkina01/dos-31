@@ -1,0 +1,26 @@
+---
+# tasks file for /home/anestesia/bookstore-infra/ansible/roles/setup-backend
+- name: Create dir
+  file:
+    path: "{{ prj_dir }}"
+    state: directory
+
+- name: Clone repo
+  git:
+    repo: https://gitlab.com/anestesia.loc/bookstore.git
+    dest: "{{ prj_dir }}"
+    clone: yes
+    update: yes
+
+- name: Copy compose file
+  copy:
+    src: compose.yaml
+    dest: "{{ prj_dir }}/compose.yaml"
+
+- name: Copy env
+  template:
+    src: container.env.j2
+    dest: "{{ prj_dir }}/.env"
+
+- name: Run backend
+  command: docker compose -f {{ prj_dir }}/compose.yaml up -d

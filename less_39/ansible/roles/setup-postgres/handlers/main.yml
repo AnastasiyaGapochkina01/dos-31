@@ -1,0 +1,6 @@
+---
+# handlers file for /home/anestesia/bookstore-infra/ansible/roles/setup-postgres
+- name: restart postgres
+  systemd:
+    name: postgresql
+    state: restarted

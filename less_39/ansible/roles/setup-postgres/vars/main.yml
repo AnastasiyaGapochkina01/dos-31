@@ -1,0 +1,7 @@
+---
+# vars file for /home/anestesia/bookstore-infra/ansible/roles/setup-postgres
+db_user: user
+db_pass: password
+db_name: bookstore
+table_name: book
+pg_version: 18

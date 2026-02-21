@@ -1,0 +1,8 @@
+- name: Setup bookstore app
+  hosts: all
+  become: true
+  roles:
+    - setup-docker
+    - setup-postgres
+    - setup-backend
+    - setup-nginx

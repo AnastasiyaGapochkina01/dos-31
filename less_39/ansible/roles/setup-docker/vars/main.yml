@@ -1,0 +1,11 @@
+---
+# vars file for /home/anestesia/bookstore-infra/ansible/roles/setup-docker
+packages:
+  - git
+  - gnupg2
+  - apt-transport-https
+  - ca-certificates
+  - wget
+  - curl
+  - software-properties-common
+  - bash-completion

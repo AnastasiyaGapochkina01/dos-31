@@ -1,0 +1,7 @@
+---
+# vars file for /home/anestesia/bookstore-infra/ansible/roles/setup-backend
+prj_dir: /opt/backend
+db_user: user
+db_pass: password
+db_name: bookstore
+db_host: localhost

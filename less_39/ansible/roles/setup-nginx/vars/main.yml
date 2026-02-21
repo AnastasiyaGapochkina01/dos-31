@@ -1,0 +1,8 @@
+---
+# vars file for setup-nginx
+nginx_default_path: "/etc/nginx/sites-enabled/default"
+nginx_conf_file_link: "/etc/nginx/sites-enabled/bookstore"
+backend_servers:
+  - ip: 127.0.0.1
+    port: 5000
+listen: 80

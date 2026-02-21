@@ -1,0 +1,5 @@
+---
+- hosts: localhost
+  remote_user: root
+  roles:
+    - /home/anestesia/bookstore-infra/ansible/roles/setup-docker
