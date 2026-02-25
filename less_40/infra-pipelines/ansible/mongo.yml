@@ -1,0 +1,5 @@
+- name: Install mongodb
+  hosts: all
+  become: yes
+  roles:
+    - install-mongo

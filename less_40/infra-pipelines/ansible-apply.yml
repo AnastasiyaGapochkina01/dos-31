@@ -1,0 +1,10 @@
+stages:
+  - lint
+  - apply
+
+linter:job:
+  stage: lint
+  script:
+    - ansible-lint ./ansible
+  allow_failure: true
+

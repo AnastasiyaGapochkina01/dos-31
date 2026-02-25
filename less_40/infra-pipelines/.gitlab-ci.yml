@@ -1,0 +1,63 @@
+
+stages:
+  - lint
+  - validate
+  - plan
+  - apply
+
+variables:
+  TF_DIR: ./terraform
+
+before_script:
+  - mkdir -p ~/aws/.ssh
+  - echo $SSH_KEY >> ~/aws/.ssh/id_ed25519
+  - echo -e "Host *\n\tStrictHostKeyChecking no \n\n" > ~/aws/.ssh/config
+
+#.ssh: &ssh
+#  - mkdir -p ~/aws/.ssh
+#  - echo $SSH_KEY >> ~/aws/.ssh/id_ed25519
+#  - echo -e "Host *\n\tStrictHostKeyChecking no \n\n" > ~/aws/.ssh/config
+
+linter:job:
+  stage: lint
+  before_script: []
+  script:
+    - terraform fmt ${TF_DIR}
+    - tflint --chdir ${TF_DIR}
+  tags:
+    - infra
+
+validate:job:
+  stage: validate
+  script:
+    - terraform -chdir=${TF_DIR} init -backend=false
+    - terraform -chdir=${TF_DIR} validate
+  tags:
+    - infra
+
+plan:job:
+  stage: plan
+  needs: ["validate:job"]
+  script:
+    - terraform -chdir=${TF_DIR} init
+    - terraform -chdir=${TF_DIR} plan -out tfplan
+  artifacts:
+    paths:
+      - ${TF_DIR}/tfplan
+    expire_in: 1h
+  rules:
+    - when: on_success
+  tags:
+    - infra
+
+apply:job:
+  stage: apply
+  needs: ["plan:job"]
+  script:
+    - terraform -chdir=${TF_DIR} init
+    - terraform -chdir=${TF_DIR} apply -auto-approve tfplan
+  rules:
+    - when: manual
+  tags:
+    - infra
+  
