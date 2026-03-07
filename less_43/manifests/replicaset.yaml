@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: ws-rs
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      team: back
+  template:
+    metadata:
+      labels:
+        team: back
+    spec:
+      containers:
+      - name: ws
+        image: nginx:alpine
