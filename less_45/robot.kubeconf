@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Config
+clusters:
+- cluster:
+    certificate-authority: /etc/kubernetes/pki/ca.crt
+    server: https://10.129.0.38:6443
+  name: cluster.local
+contexts:
+- context:
+    cluster: cluster.local
+    user: robot
+    namespace: default
+  name: robot
+users:
+  - name: robot
+    user:
+      client-certificate: robot.crt
+      client-key: robot.key
+
+current-context: robot
