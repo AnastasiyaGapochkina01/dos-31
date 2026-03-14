@@ -1,0 +1,6 @@
+namespace: metrics-app
+postgresql:
+  database: "metrics-app"
+  service:
+    type: ClusterIP
+    port: 5432

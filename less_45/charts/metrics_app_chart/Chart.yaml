@@ -1,0 +1,7 @@
+apiVersion: v2
+name: metrics-app
+description: Helm chart for metrics API with logs in PostgreSQL
+version: 0.1.0
+appVersion: "1.0"
+dependencies:
+- name: metrics-app-postgres

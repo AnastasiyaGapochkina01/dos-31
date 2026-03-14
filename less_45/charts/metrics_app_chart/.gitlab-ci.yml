@@ -1,0 +1,42 @@
+image:
+  name: alpine/helm
+  entrypoint: [""]
+
+variables:
+  RELEASE: metrics-${CI_COMMIT_SHORT_SHA}
+
+stages:
+  - lint
+  - context
+  - deploy
+
+linter:job:
+  stage: lint
+  script:
+    - helm lint ./
+  allow_failure: true
+  rules:
+    - when: never
+
+context:job:
+  stage: context
+  before_script:
+    - apk add curl bash
+    - curl -LO https://dl.k8s.io/release/v1.35.0/bin/linux/amd64/kubectl
+    - chmod +x kubectl && mv kubectl /usr/local/bin
+  script: |
+    CONTEXT=$(kubectl config get-contexts -o=name)
+    echo "KUBE_CONTEXT=$CONTEXT" >> build.env
+  artifacts:
+    reports:
+      dotenv: build.env
+
+deploy:job:
+  stage: deploy
+  before_script:
+    - apk add curl
+    - curl -LO https://dl.k8s.io/release/v1.35.0/bin/linux/amd64/kubectl
+    - chmod +x kubectl && mv kubectl /usr/local/bin
+    - kubectl config use-context $KUBE_CONTEXT
+  script:
+    - helm upgrade $RELEASE ./ --install

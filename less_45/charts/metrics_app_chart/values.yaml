@@ -1,0 +1,21 @@
+namespace: metrics-app
+app:
+  replicaCount: 2
+  image:
+    repository: anestesia01/k8s-demo
+    tag: metrics-2.0
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 5000
+  postgres:
+    host: postgres
+    port: 5432
+    database: "metrics-app"
+
+postgresql:
+  enabled: true
+  database: "metrics-app"
+  service:
+    type: ClusterIP
+    port: 5432
