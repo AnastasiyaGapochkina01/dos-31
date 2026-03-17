@@ -1,0 +1,35 @@
+---
+# nginx
+apiVersion: crd.projectcalico.org/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-nginx-from-client
+  namespace: demo-calico
+spec:
+  selector: app == 'nginx'
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: role == 'client'
+    destination:
+      ports:
+      - 80
+        
+---
+# redis
+apiVersion: crd.projectcalico.org/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-redis-access
+  namespace: demo-calico
+spec:
+  selector: app == 'redis'
+  ingress:
+  - action: Deny
+    protocol: TCP
+    destination:
+      ports:
+      - 6379
+  egress:
+  - action: Deny
